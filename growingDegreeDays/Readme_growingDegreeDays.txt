@@ -1,0 +1,1 @@
+The results directory is where growing degree days calculations are stored.

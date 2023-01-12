@@ -1,0 +1,1 @@
+The results directory is where various results calculations are stored.
