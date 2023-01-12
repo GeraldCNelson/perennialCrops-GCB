@@ -2,7 +2,7 @@
 library(terra)
 library(data.table)
 path_data <- "data/perennials/nonlimiting_all_"
-path_harvestFiles <- "data-raw/crops/HarvestedAreaYield175Crops_Geotiff/GeoTiff/"
+path_harvestFiles <- "data-raw/geotiff/"
 
 #source("R/perennialFunctions.R") # loads some functions, packages and some needed constants
 speciesChoices <- c("almond_main", "apple_main",  "cherry_main", "olive_main",  "grape_main")

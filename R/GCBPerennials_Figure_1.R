@@ -8,7 +8,7 @@ globe <- geodata::world(path = "data-raw/gadm") |> crop(ext(-180, 180, -60, 90))
 e <- ext(globe)
 xm <- e[1]; xx <- e[2]; ym <- e[3]; yx <- e[4]
 f_harvestArea <- function(speciesName, minArea) {
-  r_area <- rast(paste0("data-raw/crops/HarvestedAreaYield175Crops_Geotiff/GeoTiff/", speciesName,"/",  speciesName, "_HarvestedAreaHectares.tif"))
+  r_area <- rast(paste0("data-raw/geotiff/", speciesName,"/",  speciesName, "_HarvestedAreaHectares.tif"))
   harvestArea <- aggregate(r_area, fact = 6, fun = "sum") # convert 5 arc minutes to 1/2 degrees
   maskMin <- switch(
     speciesName,

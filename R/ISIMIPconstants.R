@@ -25,7 +25,7 @@ locOfDataFiles_THI <- "data/THI/"
 locOfResultsFiles <- "results/"
 lofOfGraphicsFiles <- "graphics/"
 locOfRawDataFiles <- "data-raw/"
-locOfHarvestDataFiles <- "data-raw/crops/HarvestedAreaYield175Crops_Geotiff/GeoTiff/"
+locOfHarvestDataFiles <- "data-raw/geotiff/"
 locOfgddsFiles <- "data/growingDegreeDays/"
 path_data <- "data/runs/"
 

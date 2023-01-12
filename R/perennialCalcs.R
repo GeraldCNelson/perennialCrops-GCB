@@ -19,7 +19,7 @@ suitabilityLevel <- "good"
 cropVals <- get(paste0("majorCropValues", "_main")) # used in several of the functions below
 path_data <- "data/perennials/"
 path_runs <- "data/runs/"
-path_harvest_data <- "data-raw/crops/HarvestedAreaYield175Crops_Geotiff/GeoTiff/"
+path_harvest_data <- "data-raw/geotiff/"
 path_graphics <- "graphics/"
 
 woptList <- list(gdal=c("COMPRESS=DEFLATE", "PREDICTOR=2", "ZLEVEL = 6", "NUM_THREADS=ALL_CPUS")) # reduces tiff file sizes
