@@ -1,0 +1,1 @@
+The graphics directory is where graphic output is stored.
