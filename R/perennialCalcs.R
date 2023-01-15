@@ -27,7 +27,7 @@ coastline <- vect("data-raw/regionInformation/ne_50m_coastline/ne_50m_coastline.
 coastline_cropped <- crop(coastline, extent_noAntarctica )
 
 
-# the code in {} below runs all the raw data crunching - extreme cold, heat, frost, GDDs - except CPs which is done in ; the code below that does aggregation - means by model and ensemble means. Don't run these unless the files need to be updated and you have some time to kill
+# the code in {} below runs all the raw data crunching - extreme cold, heat, frost, GDDs - except CPs which is done in chillPortions.R (the output from that script is available at https://doi.org/10.48364/ISIMIP.842396.1); the code below that does aggregation - means by model and ensemble means. 
 
 # test values
 k <- "ssp585"
