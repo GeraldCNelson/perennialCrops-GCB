@@ -154,7 +154,7 @@ f_readRast_count <- function(modelChoice, k, l, yearSpan, hem, climateVarChoice,
   return(tempCt)
 }
 
-f_readRast_extreme <- function(modelChoice_lower, k, l, yearSpan, hem, climateVarChoice, threshold, layersToKeep, probVal) {
+f_readRast_extreme <- function(modelChoice_lower, k, l, yearSpan, hem, climateVarChoice, threshold, layersToKeep, probVal, funDir) {
   yearSpan <- paste0(l, "_", l + yearRange)
   fileName_in <- paste0(path_clim, modelChoice_lower, "_", climateVarChoice, "_", k, "_", yearSpan, ".tif")
   print(paste0("climate fileName_in: ", fileName_in))
@@ -180,7 +180,7 @@ f_extremeCold <- function(k, l, speciesName, hem, modelChoices_lower, cropVals) 
   if (fileName_out %in% gddFilesCompleted) {
     print(paste0("Already done: ", fileName_out))
   } else {
-    system.time(x <- lapply(modelChoices_lower, f_readRast_extreme, k, l, yearSpan, hem, climateVarChoice, threshold, layersToKeep, probVal)) # read in tasmin for the relevant period and all ESMs
+    system.time(x <- lapply(modelChoices_lower, f_readRast_extreme, k, l, yearSpan, hem, climateVarChoice, threshold, layersToKeep, probVal, funDir)) # read in tasmin for the relevant period and all ESMs
     r <- rast(x)
     print(r)
     extremeColdCutoff <- cropVals[cropName == speciesChoice, low_temp_threshold]
