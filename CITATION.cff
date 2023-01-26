@@ -1,5 +1,8 @@
 @software{gerald_charles_nelson_2023_7539024,
-  author       = {Gerald Charles Nelson},
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Nelson"
+  given-names: "Gerald C."
   orcid:       = "https://orcid.org/0000-0003-3626-1221", 
   title        = {{GeraldCNelson/perennialCrops-GCB: PerennialCrops- 
                    GCB}},
