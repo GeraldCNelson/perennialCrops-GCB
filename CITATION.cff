@@ -3,12 +3,12 @@ message: "If you use this software, please cite it as below."
 authors:
  family-names: "Nelson"
   given-names: "Gerald C."
-  orcid:       = https://orcid.org/0000-0003-3626-1221
-title:        = "R Code for the results in Global Change Biology, 'Assessing temperature-based adaptation limits to climate change of temperate perennial fruit crops'"
-month:        = jan
-year:         = 2023
-publisher:    = Zenodo
-version:      = v0.1
-doi:          = 10.5281/zenodo.7539023
-url:         = "https://doi.org/10.5281/zenodo.7539023"
+  orcid:       "https://orcid.org/0000-0003-3626-1221"
+title:        "R Code for the results in Global Change Biology, 'Assessing temperature-based adaptation limits to climate change of temperate perennial fruit crops'"
+month:        jan
+year:         2023
+publisher:    Zenodo
+version:      v0.1
+doi:          10.5281/zenodo.7539023
+url:         "https://doi.org/10.5281/zenodo.7539023"
 
