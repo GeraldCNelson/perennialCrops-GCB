@@ -1,4 +1,5 @@
 # Perennial Crops - R and c++ code and data
+[![DOI](https://zenodo.org/badge/588235215.svg)](https://zenodo.org/badge/latestdoi/588235215)
 
 This site contains all the R and c++ code to generate the results in the Global Change Biology paper, "Assessing temperature-based adaptation limits to climate change of temperate perennial fruit crops". The climate variable data sets (and chill portion data) can be downloaded from 
 [https://doi.org/10.48364/ISIMIP.842396.1](https://doi.org/10.48364/ISIMIP.842396.1) 
