@@ -1,0 +1,12 @@
+@software{gerald_charles_nelson_2023_7539024,
+  author       = {Gerald Charles Nelson},
+  orcid:       = "https://orcid.org/0000-0003-3626-1221", 
+  title        = {{GeraldCNelson/perennialCrops-GCB: PerennialCrops- 
+                   GCB}},
+  month        = jan,
+  year         = 2023,
+  publisher    = {Zenodo},
+  version      = {v0.1},
+  doi          = {10.5281/zenodo.7539024},
+  url          = {https://doi.org/10.5281/zenodo.7539024}
+}
