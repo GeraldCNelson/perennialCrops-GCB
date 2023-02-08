@@ -1,43 +1,9 @@
 # calculate day lengths from latitudes
-
-# lat <- tmin.north[[c(JDay.north[1]-1, JDay.north, JDay.north[length(JDay.north)]+1)]]
-
-
-create_lats <- function(hem, year) { # generate spatraster with latitude values and number of layers between j days
-  if (!hem == "globe") {
-    if (hem == "NH") e <- ext(-180, 180, 0,90)
-    if (hem == "SH") e <- ext(-180, 180, -60,0)
-    
-    JDay.SH <- (92-2):(306)
-    JDay.NH <- JDay.SH + 180
-    jdays <- tail(JDay.SH,1) - head(JDay.SH,1) +1
-    lat_dates <- as.Date(get(paste0("JDay.", hem)), origin = as.Date(paste0(year,"-01-01")))
-    lat <- rast(extent = e) |> init("y") |> rep(jdays)
-    names(lat) <- paste0("X", lat_dates)
-    time(lat) <- lat_dates
-    return(lat)
-  } else {
-    #for whole globe and 365 days
-    e <- ext(-180, 180, -60, 90)
-    year = 1991
-    jdays <- 365
-    lat <- rast(extent = e) |> init("y") |> rep(jdays)
-    lat_dates <- as.Date((1:jdays), origin = as.Date(paste0(year,"-01-01")))
-    names(lat) <- paste0("X", lat_dates)
-    time(lat) <- lat_dates
-    
-    dl <- meteor::photoperiod(lat)
-    sunrise <- 12 - dl/2
-    sunset <- 12 + dl/2
-    comb_sds <- sds(dl, sunrise, sunset)
-    return(comb_sds)
-  }
-}
+# derived from chillR package
 
 DL <- function (latitude, JDay, notimes.as.na = FALSE) 
 {  
   
-  print("Check 6.1"); print(Sys.time())
   Gamma <- 2 * pi/365 * ((JDay) - 1)
   Delta <- 180/pi * (0.006918 - 0.399912 * cos(Gamma) + 0.070257 * 
                        sin(Gamma) - 0.006758 * cos(Gamma) + 0.000907 * sin(Gamma) - 
@@ -45,29 +11,26 @@ DL <- function (latitude, JDay, notimes.as.na = FALSE)
   
   CosWo.1 <- latitude
   values(CosWo.1) <- sin(-0.8333/360 * 2 * pi)
-  print("Check 6.11"); print(Sys.time())
   
   Delta.sin <- sin(Delta/360 * 2 * pi)
   Delta.cos <- cos(Delta/360 * 2 * pi)
-  print("Check 6.12"); print(Sys.time())
   
   CosWo.a <- (CosWo.1 - sin(latitude/360 * 2 * pi))
   CosWo.b <- (cos(latitude/360 * 2 * pi))
-  print("Check 6.13"); print(Sys.time())
+  
   termA <- stack(lapply(seq_along(Delta.sin), function(x) Delta.sin[x] * CosWo.a[[x]]))
   termB <- stack(lapply(seq_along(Delta.cos), function(x) Delta.cos[x] * CosWo.b[[x]]))
-  print("Check 6.5"); print(Sys.time())
   
   CosWo <- termA/termB
-  print("Check 6.2"); print(Sys.time())
-  # CosWo <- (CosWo.1 - sin(latitude/360 * 2 * pi) * sin(Delta/360 * 2 * pi))/(cos(latitude/360 * 
-  # 2 * pi) * cos(Delta/360 * 2 * pi))
+
   normal_days <- as.vector(CosWo[] >= -1 & CosWo[] <= 1)
   
   Sunrise <- rep(-99, length(CosWo[]))
-  Sunrise[normal_days[]] <- 12 - acos(CosWo[][normal_days])/(15/360 * 2 * pi)
+  Sunrise[normal_days[]] <- 12 - acos(CosWo[][normal_days])/(15/360 *
+                                                               2 * pi)
   Sunset <- rep(-99, length(CosWo[]))
-  Sunset[normal_days[]] <- 12 + acos(CosWo[][normal_days])/(15/360 * 2 * pi)
+  Sunset[normal_days[]] <- 12 + acos(CosWo[][normal_days])/(15/360 * 
+                                                              2 * pi)
   Daylength <- Sunset - Sunrise
   Daylength[which(CosWo[] > 1)] <- 0
   Daylength[which(CosWo[] < (-1))] <- 24
@@ -104,28 +67,16 @@ DL <- function (latitude, JDay, notimes.as.na = FALSE)
 # calculate chill portions from daily tmin and tmax
 getCP <- function (tmin=tmin, tmax=tmax, dates, Day_times=daytimes, keep_sunrise_sunset = FALSE, template=NULL, datClass, ...) 
 {
-  # if (missing(latitude)) 
-  #   stop("'latitude' not specified")
-  # if (length(latitude) > 1) 
-  #   stop("'latitude' has more than one element")
-  # if (!is.numeric(latitude)) 
-  #   stop("'latitude' is not numeric")
-  # if (latitude > 90 | latitude < (-90)) 
-  #   warning("'latitude' is usually between -90 and 90")
   
-  # datcells <- which(!is.na(tmin[[1]][[1]][]))
   datcells <- which(!is.na(template[]))
-  #browser()
-  message('  Loading temperature data into memory..')
-  print("Check 7"); print(Sys.time())
+  
+  # message('  Loading temperature data into memory..')
   
   tmax <- as.matrix(tmax)
   tmin <- as.matrix(tmin)
-  print("Check 8"); print(Sys.time())
   
-  message('  Processing daylengths..')
+  # message('  Processing daylengths..')
   
-  # dates.all <- vector('list', length(datcells))
   dates.all <- vector('list', length(template[]))
   
   # pb <- txtProgressBar(max=length(datcells), style=3)
@@ -133,7 +84,6 @@ getCP <- function (tmin=tmin, tmax=tmax, dates, Day_times=daytimes, keep_sunrise
     
     if(datClass=='list') {
       
-      # setTxtProgressBar(pb, n)
       dates.cell <- data.frame(Year = dates$Year,
                                JDay = dates$JDay,
                                Tmax = tmax[n,][dates$JDay],
@@ -149,7 +99,6 @@ getCP <- function (tmin=tmin, tmax=tmax, dates, Day_times=daytimes, keep_sunrise
                                prev_min = NA)    
     } else if (datClass=='stack') {
       
-      # setTxtProgressBar(pb, n)
       dates.cell <- data.frame(Year = dates$Year,
                                JDay = dates$JDay,
                                Tmax = tmax[n,], # tmax is pre-cropped to JDay range
@@ -168,84 +117,33 @@ getCP <- function (tmin=tmin, tmax=tmax, dates, Day_times=daytimes, keep_sunrise
     } else {
       stop('Invalid datclass')
     }
-    print("Check 9"); print(Sys.time())
+    
     
     Day_times.cell <- list(Sunrise=Day_times$Sunrise[[n]], Sunset=Day_times$Sunset[[n]], Daylength=Day_times$Daylength[[n]])
     
     dates.all[[n]] <- MHT(dates.cell= dates.cell, 
                           Day_times.cell = list(Sunrise=Day_times$Sunrise[[n]], Sunset=Day_times$Sunset[[n]], Daylength=Day_times$Daylength[[n]]))
     
-    print("Check 10"); print(Sys.time())
-    
-    message('  Calculating chill portions..')
-    # browser()
-    # CP <- lapply(dates, function(x) CP::chill_func(na.omit(as.vector(t(x[,6:29]))))) # 6:29 refers to columns the hourly temperature data
-    
+    # message('  Calculating chill portions..')
+
     getChill <- function(x) {
-      print(paste0("x: ", x))
       if(!is.null(x)) {
-        #       CP::chill_func(na.omit(as.vector(t(x))))
-        chill_func(na.omit(as.vector(t(x))))
+        CP::chill_func(na.omit(as.vector(t(x))))
       } else {
         NA
       }
     }
-    print("Check 11"); print(Sys.time())
     
-    CP <- lapply(dates.all, getChill) # 6:29 refers to columns the hourly temperature data
-    
-    template[] <- NA
-    template[] <- unlist(CP)
-    
-    return(template)
   }
+
+  CP <- lapply(dates.all, getChill) # 6:29 refers to columns the hourly temperature data
+    
+  template[] <- NA
+  template[] <- unlist(CP)
+    
+  return(template)
   
 }
-
-# from https://github.com/RPertille/ChillModels
-dynamic_model <- function(x,total=TRUE){
-  e0 <- 4153.5
-  e1 <- 12888.8
-  a0 <- 139500
-  a1 <- 2.567e+18
-  slp <- 1.6
-  tetmlt <- 277
-  aa <- a0/a1
-  ee <- e1 - e0
-  TK <- x + 273
-  ftmprt <- slp * tetmlt * (TK - tetmlt)/TK
-  sr <- exp(ftmprt)
-  xi <- sr/(1 + sr)
-  xs <- aa * exp(ee/TK)
-  ak1 <- a1 * exp(-e1/TK)
-  interE <- 0
-  memo <- new.env(hash = TRUE)
-  posi <- 1
-  assign(x = paste(1), value = 0, envir = memo)
-  E = 0
-  S <- ak1
-  S[1] <- 0
-  E <- S
-  options(scipen = 30)
-  for (l in 2:length(x)) {
-    if (E[l - 1] < 1) {
-      S[l] <- E[l - 1]
-      E[l] <- xs[l] - (xs[l] - S[l]) * exp(-ak1[l])
-    }
-    else {
-      S[l] <- E[l - 1] - E[l - 1] * xi[l - 1]
-      E[l] <- xs[l] - (xs[l] - S[l]) * exp(-ak1[l])
-    }
-  }
-  interE <- E
-  y <- rep(0, length(x))
-  y[which(interE >= 1)] <- interE[which(interE >= 1)] * 
-    xi[which(interE >= 1)]
-  if (total == TRUE) 
-    return(tail(cumsum(y),n=1))
-  else return(y)
-}
-
 
 # parent function for calculating chill portions
 getChillSpatial <- function(years, lat, JDay, tmin, tmax, template, writeToDisk=FALSE,...) {
@@ -253,7 +151,6 @@ getChillSpatial <- function(years, lat, JDay, tmin, tmax, template, writeToDisk=
   
   # add days to JDay to account for omissions on either side
   JDay <- c(JDay[1]-1, JDay, JDay[length(JDay)]+1)
-  print("Check 6"); print(Sys.time())
   
   if(class(tmin)=='list') {
     
@@ -261,42 +158,39 @@ getChillSpatial <- function(years, lat, JDay, tmin, tmax, template, writeToDisk=
     
     # interpolate hourly temperatures  
     daytimes <-  DL(lat, JDay)
-    print("Check 6.5"); print(Sys.time())
-    
-    CP <- future_lapply(seq_along(years), 
-                        function(x) getCP(tmin=tmin[[x]],tmax=tmax[[x]],Day_times=daytimes,
-                                          template=tmin[[1]][[1]],dates = data.frame(Year = years[x],
-                                                                                     JDay = JDay), datClass=datclass))
+    CP <- future_lapply(seq_along(years), function(x) getCP(tmin=tmin[[x]],
+                                                            tmax=tmax[[x]],
+                                                            Day_times=daytimes,
+                                                            template=tmin[[1]][[1]],
+                                                            dates = data.frame(Year = years[x],
+                                                                               JDay = JDay),
+                                                            datClass=datclass))
     
   } else {
     
     datclass='stack'
-    print("Check 6a.1"); print(Sys.time())
+    
     if(class(tmin[[1]]) %in% c("RasterBrick", "RasterStack", "RasterLayer")) {
       dates <- as.Date(1:nlayers(tmin), origin=as.Date(paste0(years[1], "-01-01"))-1)
-      print("Check 6a.2"); print(Sys.time())
     } else {
       if(class(tmin[[1]]) %in% c("SpatRaster")) {
-        print("Check 6a.29"); print(Sys.time())
         dates <- as.Date(1:nlyr(tmin), origin=as.Date(paste0(years[1], "-01-01"))-1)
-        #    print(paste0("dates: ", dates, ", length(dates): ", length(dates)))
-        print("Check 6a.3"); print(Sys.time())
       }
     }
     
     dates.year <- lubridate::year(dates)
+    yearRange <- years
+    
+    
+  # loop through years, finding layers associated with each year's worth of data
+  # assign a year's worth of data to each element of a list
     
     tmin.out <- vector("list", length(unique(dates.year)))
     tmax.out <- vector("list", length(unique(dates.year)))
     period.dates <- vector("list", length(unique(dates.year)))
     
-    # if(max(JDay)>365) {
-    # yearRange <- unique(dates.year)[1:(length(unique(dates.year))-1)]
-    yearRange <- years
-    
-    # } else {
-    # yearRange <- unique(dates.year)
-    # }
+    # create template raster stack to assign daily values to
+    ext_hem <- ext(tmin)
     
     pb <- txtProgressBar(max=length(yearRange), style=3)
     for(i in seq_along(yearRange)) {
@@ -305,21 +199,23 @@ getChillSpatial <- function(years, lat, JDay, tmin, tmax, template, writeToDisk=
       lastDay <- firstDay + length(JDay)-1
       period <- firstDay:lastDay
       period.dates[[i]] <- dates[period]
-      #  print("Check 6a.34"); print(Sys.time())
       
-      tmin.tmp <- brick(tmin[[period]]) 
-      tmin.tmp[] <- as.matrix(tmin.tmp)
+      brick_empty <- brick(nrows=dim(tmin)[1], ncols=dim(tmin)[2], xmn=-180, xmx=180, ymn=ext_hem[3], ymx=ext_hem[4], nl=length(period), crs = "+proj=longlat +datum=WGS84 +no_defs" )
       
-      tmax.tmp <- brick(tmax[[period]]) 
-      tmax.tmp[] <- as.matrix(tmax.tmp)
-      print("Check 6a.35"); print(Sys.time())
+      tmin.tmp <- brick_empty
+      m_tmin <- as.matrix(tmin[[period]])
+      tmin.tmp[] <- m_tmin
       
+      tmax.tmp <- brick_empty
+      m_tmax <- as.matrix(tmax[[period]])
+      tmax.tmp[] <- m_tmax
+
       tmin.out[[i]] <- tmin.tmp
       tmax.out[[i]] <- tmax.tmp
     }
     close(pb)
-    # run getCP function across years range
     
+    # run getCP function across years range
     if(max(JDay)>365) {
       JDay[JDay>365] <- JDay[JDay>365]-365
     }
@@ -329,7 +225,8 @@ getChillSpatial <- function(years, lat, JDay, tmin, tmax, template, writeToDisk=
     
     message('  Calculating chill portions..')
     tmp <- raster(tmin[[1]][[1]])
-    dates.list <- lapply(seq_along(years), function(x) data.frame(Year = year(period.dates[[x]]), JDay = yday(period.dates[[x]])))
+    dates.list <- lapply(seq_along(years), function(x) data.frame(Year = year(period.dates[[x]]),
+                                                                  JDay = yday(period.dates[[x]])))
     rm(tmin, tmax)
     gc()
     
@@ -347,23 +244,24 @@ getChillSpatial <- function(years, lat, JDay, tmin, tmax, template, writeToDisk=
 }
 
 getChillWorld <- function(scenario, model, year_range) {
+  
   # get data files from scenario and model arguments
-  dat.dir <- paste0('climdata')
+  dat.dir <- paste0('climdata/')
   dat.files <- list.files(dat.dir, pattern=model, recursive=TRUE, full.names = TRUE)
   dat.files <- grep('xml', dat.files, invert = TRUE, value = TRUE)
   # dat.files <- grep(year_range, dat.files, invert = TRUE, value = TRUE)
   tmin.files <- grep("tasmin", dat.files, value=TRUE)
   tmax.files <- grep("tasmax", dat.files, value=TRUE)
-  #  print("check 1"); print(Sys.time())
+  
   if(all(year_range==1991:2010)) {
-    tmin.in <- rast(tmin.files[1]) # %>% aggregate(fact=2)
-    tmax.in <- rast(tmax.files[1]) # %>% aggregate(fact=2)
+    tmin.in <- rast(tmin.files[1])
+    tmax.in <- rast(tmax.files[1])
   } else if (all(year_range==2041:2060)) {
-    tmin.in <- rast(tmin.files[1]) # %>% aggregate(fact=2)
-    tmax.in <- rast(tmax.files[1]) # %>% aggregate(fact=2)
+    tmin.in <- rast(tmin.files[1])
+    tmax.in <- rast(tmax.files[1])
   } else if(all(year_range==2081:2100)) {
-    tmin.in <- rast(tmin.files[2]) # %>% aggregate(fact=2)
-    tmax.in <- rast(tmax.files[2]) # %>% aggregate(fact=2)
+    tmin.in <- rast(tmin.files[2])
+    tmax.in <- rast(tmax.files[2])
   } else {
     stop("Unsupported year range specified.")
   }
@@ -375,7 +273,7 @@ getChillWorld <- function(scenario, model, year_range) {
   if(testVal_min < -80 | testVal_max > 100) {
     stop(paste0("min: ", testVal_min, ", max: ", testVal_max, ", file: ", scenario, " ", model, " tmin ", year_range[1]))
   }
-  # print("check 2"); print(Sys.time())
+  
   testVal_min <- min(minmax(tmax.in))
   testVal_max <- max(minmax(tmax.in))
   if(testVal_min < -75 | testVal_max > 100) {
@@ -383,8 +281,6 @@ getChillWorld <- function(scenario, model, year_range) {
   }
   
   # set dormancy period as a vector of julian days (for northern hemisphere dormancy, days in second calendar year should be represented as 365+n)
-  # JDay.south <- 92:306
-  # JDay.north <- 92:306 + 180
   
   JDay.south <- 92:306
   JDay.north <- 92:306 + 180
@@ -393,51 +289,43 @@ getChillWorld <- function(scenario, model, year_range) {
   
   #### run calculations on northern hemisphere ####
   message('  Cropping extent to northern hemisphere..')
-  print("check 2.25"); print(Sys.time())
-  window(tmin.in) <- ext(c(-180,180,0,90))
-  tmin.north <- tmin.in * 1
-  print("check 2.5"); print(Sys.time())
-  #tmin.north <- crop(tmin.in, ext(c(-180,180,0,90)))
+  tmin.north <- crop(tmin.in, ext(c(-180,180,0,90)))
   # tmin.north <- crop(tmin.in, ext(c(-100,-80,30,50)))
   gc()
-  window(tmax.in) <- ext(c(-180,180,0,90))
-  tmax.north <- tmax.in * 1
-  # tmax.north <- crop(tmax.in, ext(c(-180,180,0,90)))
+  tmax.north <- crop(tmax.in, ext(c(-180,180,0,90)))
   # tmax.north <- crop(tmax.in, ext(c(-100,-80,30,50)))
   gc()
-  print("Check 3"); print(Sys.time())
+
   # produce spatial layer of latitudes and use to calculate day lengths
-  # lat <- tmin.north[[c(JDay.north[1]-1, JDay.north, JDay.north[length(JDay.north)]+1)]]
-  
-  # xy <- coordinates(raster(tmin.north[[1]][[1]]))
-  # values(lat) <- xy[,2]
-  lat <- create_lats(hem = "NH", year = 1991)
-  print("check 4"); print(Sys.time())
+  lat <- tmin.north[[c(JDay.north[1]-1, JDay.north, JDay.north[length(JDay.north)]+1)]]
+  xy <- coordinates(raster(tmin.north[[1]][[1]]))
+  values(lat) <- xy[,2]
+
   rm(tmin.in, tmax.in)
   gc()
-  
+
   # set a template raster to define the attributes of the final output raster
   # this can be a single layer of temperature data, for example
   template.ras <- tmin.north[[1]]
-  
+
   # process daily temperatures
   year_range.north <- year_range[1:(length(year_range)-1)]
   t <- proc.time()
-  print("Check 5"); print(Sys.time())
   chill_portions.north <- getChillSpatial(years=year_range.north, lat, JDay.north, tmin=tmin.north, tmax=tmax.north, template=template.ras)
   t1 <- t-proc.time()
   t1/60
+
+ # dir.create(paste0('data/chill_portions/', scenario, '/', model, '/', year_range[10]), recursive = TRUE)
+  outD <- paste0('data/chill_portions/', scenario, '/', model, '/', year_range[10], "/") 
+  if (!dir.exists(outD)) dir.create(outD, recursive = TRUE)
   
-  nDir <- paste0('data/chill_portions/', scenario, '/', model, '/', year_range[10])
-  if (!dir.exists(nDir)) dir.create(nDir, recursive = TRUE)
-  
-  # chill_portions.north.raster <- rast(stack(lapply(chill_portions.north, raster)))
-  # chill_portions.north.raster <- rast(stack(chill_portions.north))
-  chill_portions.north.rast <- rast(chill_portions.north)
-  
-  outF <- paste0('data/chill_portions/', scenario, '/', model, '/', scenario, '_', model, '_', year_range[10], '_', 'chill_portions_north.tif')
-  writeRaster(chill_portions.north.rast, outF, overwrite=TRUE)
-  
+  chill_portions.north.raster <- rast(stack(chill_portions.north))
+
+  writeRaster(chill_portions.north.raster,
+              paste0('data/chill_portions/',
+                     scenario, '/', model, '/', scenario, '_', model, '_', year_range[10], '_', 'chill_portions_north.tif'),
+              overwrite=TRUE)
+
   rm(tmin.north, tmax.north)
   gc()
   
@@ -461,39 +349,33 @@ getChillWorld <- function(scenario, model, year_range) {
   plan(multisession, workers=3, gc=TRUE)
   
   message('  Cropping extent to southern hemisphere (excluding Antarctica)..')
-  window(tmin.in) <- ext(c(-180,180,-60,0))
-  tmin.south <- tmin.in * 1
-  # tmin.south <- crop(tmin.in, ext(c(-180,180,-60,0))) # -60 no antarctica
+  tmin.south <- crop(tmin.in, ext(c(-180,180,-60,0))) # -60 no antarctica
   gc()
-  window(tmax.in) <- ext(c(-180,180,-60,0))
-  tmax.south <- tmax.in * 1
-  
-  # tmax.south <- crop(tmax.in, ext(c(-180,180,-60,0)))
+  tmax.south <- crop(tmax.in, ext(c(-180,180,-60,0)))
   
   rm(tmin.in, tmax.in)
   gc()
   
   # produce spatial layer of latitudes and use to calculate day lengths
-  # lat <- tmin.south[[c(JDay.south[1]-1, JDay.south, JDay.south[length(JDay.south)]+1)]]
-  # xy <- coordinates(raster(tmin.south[[1]][[1]]))
-  # values(lat) <- xy[,2]
-  lat <- create_lats(hem = "SH", year = 1991)
+  lat <- tmin.south[[c(JDay.south[1]-1, JDay.south, JDay.south[length(JDay.south)]+1)]]
   
+  xy <- coordinates(raster(tmin.south[[1]][[1]]))
+  values(lat) <- xy[,2]
   # set a template raster to define the attributes of the final output raster
   # this can be a single layer of temperature data, for example
   template.ras <- tmin.south[[1]]#[[1]]
+  
   # process daily temperatures
   t <- proc.time()
   chill_portions.south <- getChillSpatial(years=year_range, lat, JDay.south, tmin=tmin.south, tmax=tmax.south, template=template.ras)
   t1 <- t-proc.time()
   t1/60
   
-  # chill_portions.south.raster <- rast(stack(chill_portions.south))
-  chill_portions.south.rast <- rast(chill_portions.south)
-  outF <- paste0('data/chill_portions/',
-                 scenario, '/', model, '/', scenario, '_', model, '_', year_range[10], '_', 'chill_portions_south.tif')
-  writeRaster(chill_portions.south.rast, outF,overwrite=TRUE)
-  print(outF)
+  chill_portions.south.raster <- rast(stack(chill_portions.south))
+  writeRaster(chill_portions.south.raster,
+              paste0('data/chill_portions/',
+                     scenario, '/', model, '/', scenario, '_', model, '_', year_range[10], '_', 'chill_portions_south.tif'),
+              overwrite=TRUE)
   rm(tmin.south, tmax.south)
   gc()
   
@@ -522,7 +404,7 @@ MHT <- function (dates.cell, Day_times.cell, keep_sunrise_sunset = FALSE)
     year_file <- dates.cell
     year_file <- year_file[which(!is.na(year_file$Tmin) & !is.na(year_file$Tmax)),]
     year_file <- year_file[2:(nrow(year_file)-1),]
-    
+
     preserve_columns <- colnames(year_file)
     Day_times <- Day_times.cell
     

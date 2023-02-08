@@ -1,74 +1,40 @@
-require(chillR)
-require(sp)
+#require(chillR)
+#require(sp)
 require(tidyverse)
 require(raster)
 require(lubridate)
 require(terra)
 require(pbapply)
-require(rasterVis)
+#require(rasterVis)
 require(future)
 require(future.apply)
+require(terra)
 require(Rcpp)
 
-terraOptions(memfrac = 0.9, verbose = T, tempdir = "temp") # use with Mac with Mx processor
-options(future.globals.maxSize= 12000*1024^2)
+options(future.globals.maxSize = 12000*1024^2)
 
 source('R/chillSpatial_functions.R')
 
 plan(multisession, workers=3, gc=TRUE)
 
-# Rcpp.package.skeleton('CP', cpp_files = '../../chillPortions/global_chill/Cpp/chill_func.cpp')
 
-Rcpp.package.skeleton('CP', cpp_files = 'R/Cpp/chill_func.cpp', force = TRUE)
-#devtools::install('CP')
-require(CP)
-# load chill_func.cpp
-Rcpp::sourceCpp("R/cpp/chill_func.cpp")
-# # models <- tolower(c("GFDL-ESM4", "IPSL-CM6A-LR", "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL"))
-# # scenarios <- c("historical", "ssp126", "ssp585")
-# 
-# # an alternative approach is some nested for loops that replace all the individaul lines of code below
-# source("R/ISIMIPconstants.R") # loads a bunch of constants
-# 
-# # # chill portions, scenarios -----
-# # for (k in sspChoices) {
-# #   message(k)
-# #   for (l in startYearChoices) {
-# #     yearSpan <- l:as.numeric(paste0(l + yearRange))
-# #     message(paste0(' ', l))
-# #     for (modelChoice in modelChoices_lower) {
-# #     message(paste0('  ', modelChoice))
-# #     try(getChillWorld(scenario = k, model = modelChoice, year_range = yearSpan))
-# #     # cpName <- paste0(k, "_", modelChoice)
-# #     # assign(cpName, cp)
-# #     }
-# #   }
-# # }
-# # 
-# # # chill portions, historical -----
-# # k <- "historical"
-# # l <- 1991
-# #   for (l in startYearChoices) {
-# #     yearSpan <- l : as.numeric(paste0(l + yearRange))
-# #     for (modelChoice in modelChoices_lower) {
-# #       cp <- getChillWorld(scenario=k, model=modelChoice, year_range=yearSpan)
-# #       cpName <- paste0(k, "_", modelChoice)
-# #       assign(cpName, cp)
-# #     }
-# # }
-# #     
-# # t1 <- proc.time()
-# # cp <- getChillWorld(scenario=k, model=modelChoice, year_range=yearSpan)
-# # t2 <- t1-proc.time()
-# # t2
+# # put in if statement to check if CP exists
+# Rcpp.package.skeleton('CP', cpp_files = 'R/Cpp/chill_func.cpp')
+# devtools::install('CP')
+# require(CP)
+# Rcpp::sourceCpp("R/cpp/chill_func.cpp")
+# require(CP)
+Rcpp::sourceCpp("R/cpp/chill_func.cpp") # chill portions C++ code sourced from Itai Trilnick https://github.com/trilnick/miniChill
 
 models <- tolower(c("GFDL-ESM4", "IPSL-CM6A-LR", "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL"))
 scenarios <- c("historical", "ssp126", "ssp585")
 
-  plan(multisession, workers = 3, gc = TRUE)
-  historical_GFDL_ESM4 <- getChillWorld(scenario=scenarios[1], model=models[1], year_range=1991:2010)
-  future:::ClusterRegistry("stop")
+t1 <- proc.time()
+plan(multisession, workers=3, gc=TRUE)
+historical_GFDL_ESM4 <- getChillWorld(scenario=scenarios[1], model=models[1], year_range=1991:2010)
+future:::ClusterRegistry("stop")
 gc() 
+print(t1-proc.time())
 
 plan(multisession, workers=3, gc=TRUE)
 historical_IPSL_CM6A_LR <- getChillWorld(scenario=scenarios[1], model=models[2], year_range=1991:2010)
@@ -89,8 +55,6 @@ plan(multisession, workers=3, gc=TRUE)
 historical_UKESM1_0_LL <- getChillWorld(scenario=scenarios[1], model=models[5], year_range=1991:2010)
 future:::ClusterRegistry("stop")
 gc() 
-
-
 
 
 plan(multisession, workers=3, gc=TRUE)
