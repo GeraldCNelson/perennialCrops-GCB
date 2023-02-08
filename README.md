@@ -3,7 +3,7 @@
 # "Assessing temperature-based adaptation limits to climate change of temperate perennial fruit crops" - R and c++ code and data
 
 # Description of the data and file structure
-The code and data needed to reproduce the results in Global Change Biology, "Assessing temperature-based adaptation limits to climate change of temperate perennial fruit crops" are available in the Dryad site (data, 79 GB) ([https://doi.org/10.48364/ISIMIP.842396.1](https://doi.org/10.48364/ISIMIP.842396.1)) and the Zenodo site (code and small data sets) ([https://doi.org/10.5281/zenodo.7539023](https://doi.org/10.5281/zenodo.7539023)).
+The code and data needed to reproduce the results in Global Change Biology, "Assessing temperature-based adaptation limits to climate change of temperate perennial fruit crops" are available in the Dryad site (data, 79 GB) ([https://doi.org/10.5061/dryad.5dv41ns98](https://doi.org/10.5061/dryad.5dv41ns98)) and the Zenodo site (code and small data sets) ([https://doi.org/10.5281/zenodo.7539023](https://doi.org/10.5281/zenodo.7539023)).
 
 To generate the results, the _Directory structure_ section below describes the directories needed (and should automatically be created when the zenodo files are downloaded) and what is contained in them.The _Order of operations_ section describes the order in which the R code files need to be run to generate the results.
 
