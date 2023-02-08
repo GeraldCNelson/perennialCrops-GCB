@@ -1,4 +1,3 @@
-# Perennial Crops - R and c++ code and data
 [![DOI](https://zenodo.org/badge/588235215.svg)](https://zenodo.org/badge/latestdoi/588235215)
 
 # "Assessing temperature-based adaptation limits to climate change of temperate perennial fruit crops" - R and c++ code and data
