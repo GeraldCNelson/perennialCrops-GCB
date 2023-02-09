@@ -8,20 +8,19 @@ woptList <- list(gdal=c("COMPRESS=DEFLATE", "PREDICTOR=2", "ZLEVEL = 6", "NUM_TH
 
 # choice variables, often used in for loops
 # sspChoices <- c("ssp126", "ssp585") 
-# modelChoices <- c( "GFDL-ESM4", "IPSL-CM6A-LR", "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL") 
-# modelChoices_lower <- tolower(modelChoices)
+modelChoices <- c( "GFDL-ESM4", "IPSL-CM6A-LR", "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL") 
+modelChoices_lower <- tolower(modelChoices)
 # startYearChoices <-  c(2041, 2081) 
 # hemispheres <- c("NH", "SH")
-# extent_NH <- ext( -180, 180, 0, 90)
-# extent_SH <-ext( -180, 180, -60, 0) #-60 gets rid of Antarctica for SH
+extent_NH <- ext( -180, 180, 0, 90)
+extent_SH <-ext( -180, 180, -60, 0) #-60 gets rid of Antarctica for SH
 # 
-# yearRange <- 19
+yearRange <- 19
 
 # file locations -----
 locOfClimFiles <- "climdata/"
 path_data <- "data/perennials/"
-locOfCPFiles <- "data/chillPortions/chill_portions/"
-locOfDataFiles_THI <- "data/THI/"
+locOfCPFiles <- "data/chill_portions/"
 locOfResultsFiles <- "results/"
 lofOfGraphicsFiles <- "graphics/"
 locOfRawDataFiles <- "data-raw/"

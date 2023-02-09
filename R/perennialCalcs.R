@@ -190,9 +190,11 @@ for (hem in hemispheres) {
 }
 
 # combined damage, scenarios -----
-# code to read in 1/0 metrics files and produce 1/0 tifs where the crop is potentially growable. The chill portions files are created in the chillPortions.R script
+# code to read in 1/0 metrics files and produce 1/0 tifs where the crop is potentially growable. The chill portions files are created in the chill_projections.R script
+# chill_projections.R # uncomment this line to generate new chill portions files
 # Important note: The chillPortions.R script must be run before combined damage whenever any chill portion value is changed.
-# chillPortions.R # uncomment this when you want to generate new chill portions values.
+
+ chillPortions.R 
 {
   # combined damage -----
   for (chillLevel in chillLevels) {
