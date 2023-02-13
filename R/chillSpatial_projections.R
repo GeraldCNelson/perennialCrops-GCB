@@ -1,11 +1,11 @@
-#require(chillR)
-#require(sp)
+require(chillR)
+require(sp)
 require(tidyverse)
 require(raster)
 require(lubridate)
 require(terra)
 require(pbapply)
-#require(rasterVis)
+require(rasterVis)
 require(future)
 require(future.apply)
 require(terra)
@@ -14,16 +14,10 @@ require(Rcpp)
 options(future.globals.maxSize = 12000*1024^2)
 
 source('R/chillSpatial_functions.R')
+dat.dir <- paste0('climdata/')
 
 plan(multisession, workers=3, gc=TRUE)
 
-
-# # put in if statement to check if CP exists
-# Rcpp.package.skeleton('CP', cpp_files = 'R/Cpp/chill_func.cpp')
-# devtools::install('CP')
-# require(CP)
-# Rcpp::sourceCpp("R/cpp/chill_func.cpp")
-# require(CP)
 Rcpp::sourceCpp("R/cpp/chill_func.cpp") # chill portions C++ code sourced from Itai Trilnick https://github.com/trilnick/miniChill
 
 models <- tolower(c("GFDL-ESM4", "IPSL-CM6A-LR", "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL"))

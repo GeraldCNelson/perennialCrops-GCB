@@ -128,7 +128,7 @@ getCP <- function (tmin=tmin, tmax=tmax, dates, Day_times=daytimes, keep_sunrise
 
     getChill <- function(x) {
       if(!is.null(x)) {
-        CP::chill_func(na.omit(as.vector(t(x))))
+        chill_func(na.omit(as.vector(t(x))))
       } else {
         NA
       }
@@ -236,9 +236,7 @@ getChillSpatial <- function(years, lat, JDay, tmin, tmax, template, writeToDisk=
                                                             template=tmp,
                                                             dates = dates.list[[x]],
                                                             datClass=datclass))
-    
   }
-  
   return(CP)
   
 }
@@ -246,12 +244,10 @@ getChillSpatial <- function(years, lat, JDay, tmin, tmax, template, writeToDisk=
 getChillWorld <- function(scenario, model, year_range) {
   
   # get data files from scenario and model arguments
-  dat.dir <- paste0('climdata/')
   dat.files <- list.files(dat.dir, pattern=model, recursive=TRUE, full.names = TRUE)
   dat.files <- grep('xml', dat.files, invert = TRUE, value = TRUE)
-  # dat.files <- grep(year_range, dat.files, invert = TRUE, value = TRUE)
-  tmin.files <- grep("tasmin", dat.files, value=TRUE)
-  tmax.files <- grep("tasmax", dat.files, value=TRUE)
+  tmin.files <- grep("tasmin", dat.files, value=TRUE) %>% grep("aux|xml|json", ., value=TRUE, invert=TRUE)
+  tmax.files <- grep("tasmax", dat.files, value=TRUE) %>% grep("aux|xml|json", ., value=TRUE, invert=TRUE)
   
   if(all(year_range==1991:2010)) {
     tmin.in <- rast(tmin.files[1])
@@ -315,10 +311,11 @@ getChillWorld <- function(scenario, model, year_range) {
   t1 <- t-proc.time()
   t1/60
 
- # dir.create(paste0('data/chill_portions/', scenario, '/', model, '/', year_range[10]), recursive = TRUE)
-  outD <- paste0('data/chill_portions/', scenario, '/', model, '/', year_range[10], "/") 
-  if (!dir.exists(outD)) dir.create(outD, recursive = TRUE)
+  # dir.create(paste0('data/chill_portions/', scenario, '/', model, '/', year_range[10]), recursive = TRUE)
   
+  outD <- paste0('data/chill_portions/', scenario, '/', model, '/', year_range[10], "/")
+  if (!dir.exists(outD)) dir.create(outD, recursive = TRUE)
+
   chill_portions.north.raster <- rast(stack(chill_portions.north))
 
   writeRaster(chill_portions.north.raster,
@@ -397,6 +394,10 @@ getChillWorld <- function(scenario, model, year_range) {
   
 }
 
+
+
+# interpolate daily tmin and tmax to hourly temperatures
+# code modified from chillR::make_hourly_temps()
 
 MHT <- function (dates.cell, Day_times.cell, keep_sunrise_sunset = FALSE) 
 {
